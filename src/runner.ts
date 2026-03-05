@@ -24,19 +24,21 @@ async function createProvider(config: RunConfig): Promise<ProviderBackend> {
 /** Start a run — returns a stream, chat handle, and close function */
 export async function run(prompt: string, config: RunConfig): Promise<AgentRun> {
   const provider = await createProvider(config);
-  const mwContext = { agent: config.agent, provider: config.provider };
-  const middleware = config.middleware ?? [];
+  const middleware = config.middleware;
 
-  const stream = middleware.length
-    ? applyMiddleware(provider.run(prompt, config), middleware, mwContext)
-    : provider.run(prompt, config);
+  if (!middleware?.length) {
+    return {
+      stream: provider.run(prompt, config),
+      chat: (message: string) => provider.chat(message),
+      close: () => provider.close(),
+    };
+  }
+
+  const mwContext = { agent: config.agent, provider: config.provider };
 
   return {
-    stream,
-    chat: (message: string) => {
-      const chatStream = provider.chat(message);
-      return middleware.length ? applyMiddleware(chatStream, middleware, mwContext) : chatStream;
-    },
+    stream: applyMiddleware(provider.run(prompt, config), middleware, mwContext),
+    chat: (message: string) => applyMiddleware(provider.chat(message), middleware, mwContext),
     close: () => provider.close(),
   };
 }

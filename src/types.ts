@@ -51,7 +51,7 @@ export type Provider = "claude" | "codex" | "kimi";
 /** Context passed to each middleware function */
 export interface MiddlewareContext {
   agent: AgentDef;
-  provider: string;
+  provider: Provider;
 }
 
 /** Middleware transforms the stream between provider and consumer */
