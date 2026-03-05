@@ -34,7 +34,8 @@ jobs:
       - name: Build
         run: bun run build
 
+      - name: Ensure latest npm
+        run: npm install -g npm@latest
+
       - name: Publish
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

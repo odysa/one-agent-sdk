@@ -13,6 +13,10 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/odysa/open-agent-sdk.git"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
