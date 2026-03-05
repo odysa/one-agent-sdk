@@ -42,6 +42,10 @@ All three are optional peer dependencies with ambient type declarations in `src/
 - `StreamChunk` — discriminated union: `text | tool_call | tool_result | handoff | error | done`
 - `RunConfig` — provider selection, agent, additional agents map for handoffs, provider options
 
+### Middleware (`src/middleware/`)
+
+`defineMiddleware` wraps an async generator transform; `applyMiddleware` composes a middleware array over a stream. `core.ts` has the primitives, the remaining files are built-in middleware (`logging`, `usageTracker`, `timing`, `textCollector`, `guardrails`, `hooks`, `filter`). Barrel re-exported from `index.ts`. Stateful middleware (`usageTracker`, `textCollector`) return a handle with `middleware` plus accessor methods.
+
 ### Handoff Pattern
 
 Agents declare `handoffs: string[]` referencing agent names. The runner's `agents` map provides the full definitions. OpenAI/Kimi providers implement handoffs as synthetic `transfer_to_{name}` tools that swap the active agent. Claude provider delegates to the SDK's built-in agent support.

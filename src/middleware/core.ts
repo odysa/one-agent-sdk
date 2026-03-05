@@ -1,4 +1,4 @@
-import type { Middleware, MiddlewareContext, StreamChunk } from "./types.js";
+import type { Middleware, MiddlewareContext, StreamChunk } from "../types.js";
 
 export function defineMiddleware(fn: Middleware): Middleware {
   return fn;

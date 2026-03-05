@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { applyMiddleware, defineMiddleware } from "../middleware.js";
+import { applyMiddleware, defineMiddleware } from "../middleware/index.js";
 import type { MiddlewareContext, StreamChunk } from "../types.js";
 import { collect, fromChunks } from "./mock-provider.js";
 

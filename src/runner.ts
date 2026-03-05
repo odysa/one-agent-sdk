@@ -1,5 +1,5 @@
 import type { z } from "zod";
-import { applyMiddleware } from "./middleware.js";
+import { applyMiddleware } from "./middleware/index.js";
 import type { ProviderBackend } from "./providers/types.js";
 import { getProvider } from "./registry.js";
 import type { AgentRun, RunConfig } from "./types.js";
