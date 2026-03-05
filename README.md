@@ -46,6 +46,10 @@ Install the SDK:
 
 ```bash
 npm install one-agent-sdk
+# or
+pnpm add one-agent-sdk
+# or
+bun add one-agent-sdk
 ```
 
 Then install the provider SDK for your backend:
