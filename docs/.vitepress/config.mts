@@ -47,7 +47,7 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: "github", link: "https://github.com/anthropics/one-agent-sdk" },
+      { icon: "github", link: "https://github.com/odysa/one-agent-sdk" },
     ],
 
     search: {
