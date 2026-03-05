@@ -6,7 +6,12 @@ import type { z } from "zod";
  * otherwise falls back to a basic conversion.
  */
 export function zodToJsonSchema(schema: z.ZodType): Record<string, unknown> {
-  // Zod v4 has built-in toJSONSchema()
+  // Zod v4: instance-level toJSONSchema()
+  if (typeof (schema as any).toJSONSchema === "function") {
+    return (schema as any).toJSONSchema();
+  }
+
+  // Zod v4: constructor-level toJSONSchema()
   if ("toJSONSchema" in (schema.constructor as any)) {
     const zod = schema.constructor as any;
     return zod.toJSONSchema(schema);

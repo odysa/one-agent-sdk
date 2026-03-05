@@ -54,11 +54,10 @@ export async function createClaudeProvider(config: RunConfig): Promise<ProviderB
       }));
   }
 
+  const env = { ...process.env, CLAUDECODE: undefined };
   let sessionId: string | undefined;
 
   async function* runQuery(prompt: string): AsyncGenerator<StreamChunk> {
-    const env = { ...process.env, CLAUDECODE: undefined };
-
     const options: Record<string, unknown> = {
       systemPrompt: config.agent.prompt,
       permissionMode: "bypassPermissions",
@@ -74,7 +73,7 @@ export async function createClaudeProvider(config: RunConfig): Promise<ProviderB
     if (config.maxTurns) options.maxTurns = config.maxTurns;
     if (config.signal) {
       const ac = new AbortController();
-      config.signal.addEventListener("abort", () => ac.abort());
+      config.signal.addEventListener("abort", () => ac.abort(), { once: true });
       options.abortController = ac;
     }
     if (config.providerOptions) Object.assign(options, config.providerOptions);

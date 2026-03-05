@@ -56,6 +56,8 @@ const mathAgent = defineAgent({
 // --- Run ---
 
 async function main() {
+  console.log("Running multi-agent example...");
+
   const { stream } = await run(
     "What is the population of Tokyo? Then calculate what 15% of that number is.",
     {
