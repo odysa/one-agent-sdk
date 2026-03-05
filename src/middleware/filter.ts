@@ -11,17 +11,23 @@ export interface FilterOptions {
 }
 
 export function filter(options: FilterOptions): Middleware {
+  const check: (chunk: StreamChunk) => boolean = options.predicate
+    ? options.predicate
+    : options.include
+      ? ((s) => {
+          const set = new Set<string>(s);
+          return (c: StreamChunk) => set.has(c.type);
+        })(options.include)
+      : options.exclude
+        ? ((s) => {
+            const set = new Set<string>(s);
+            return (c: StreamChunk) => !set.has(c.type);
+          })(options.exclude)
+        : () => true;
+
   return defineMiddleware(async function* (stream) {
     for await (const chunk of stream) {
-      if (options.predicate) {
-        if (options.predicate(chunk)) yield chunk;
-      } else if (options.include) {
-        if (options.include.includes(chunk.type)) yield chunk;
-      } else if (options.exclude) {
-        if (!options.exclude.includes(chunk.type)) yield chunk;
-      } else {
-        yield chunk;
-      }
+      if (check(chunk)) yield chunk;
     }
   });
 }

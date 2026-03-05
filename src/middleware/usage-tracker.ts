@@ -27,7 +27,7 @@ export function usageTracker(options: UsageTrackerOptions = {}): UsageTrackerHan
         stats.inputTokens += chunk.usage.inputTokens;
         stats.outputTokens += chunk.usage.outputTokens;
         stats.requests += 1;
-        options.onUsage?.(structuredClone(stats));
+        options.onUsage?.({ ...stats });
       }
       yield chunk;
     }
@@ -35,7 +35,7 @@ export function usageTracker(options: UsageTrackerOptions = {}): UsageTrackerHan
 
   return {
     middleware,
-    getStats: () => structuredClone(stats),
+    getStats: () => ({ ...stats }),
     reset: () => {
       stats = { inputTokens: 0, outputTokens: 0, requests: 0 };
     },

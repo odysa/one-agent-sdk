@@ -20,29 +20,27 @@ export interface TimingOptions {
 export function timing(options: TimingOptions = {}): Middleware {
   return defineMiddleware(async function* (stream) {
     const start = performance.now();
-    let firstChunk = false;
-    let firstText = false;
-    let timeToFirstChunk = 0;
+    let timeToFirstChunk: number | null = null;
     let timeToFirstText: number | null = null;
 
     for await (const chunk of stream) {
-      const now = performance.now();
+      if (timeToFirstChunk === null || timeToFirstText === null) {
+        const now = performance.now();
 
-      if (!firstChunk) {
-        firstChunk = true;
-        timeToFirstChunk = now - start;
-      }
+        if (timeToFirstChunk === null) {
+          timeToFirstChunk = now - start;
+        }
 
-      if (!firstText && chunk.type === "text") {
-        firstText = true;
-        timeToFirstText = now - start;
-        options.onFirstText?.(timeToFirstText);
+        if (timeToFirstText === null && chunk.type === "text") {
+          timeToFirstText = now - start;
+          options.onFirstText?.(timeToFirstText);
+        }
       }
 
       yield chunk;
     }
 
     const duration = performance.now() - start;
-    options.onComplete?.({ timeToFirstChunk, timeToFirstText, duration });
+    options.onComplete?.({ timeToFirstChunk: timeToFirstChunk ?? 0, timeToFirstText, duration });
   });
 }

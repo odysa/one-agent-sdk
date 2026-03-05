@@ -12,7 +12,7 @@ export interface LoggingOptions {
 
 export function logging(options: LoggingOptions = {}): Middleware {
   const { logger, types, label = "[middleware:logging]" } = options;
-  const log = logger ?? ((message: string) => console.log(message));
+  const log = logger ?? ((message: string, _chunk: StreamChunk) => console.log(message));
 
   return defineMiddleware(async function* (stream) {
     for await (const chunk of stream) {

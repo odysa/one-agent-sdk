@@ -20,22 +20,19 @@ export function textCollector(options: TextCollectorOptions = {}): TextCollector
   let collected = "";
 
   const middleware = defineMiddleware(async function* (stream) {
-    let accumulated = "";
-
     for await (const chunk of stream) {
       if (chunk.type === "text") {
-        accumulated += chunk.text;
-        options.onText?.(accumulated);
+        collected += chunk.text;
+        options.onText?.(collected);
       }
 
       if (chunk.type === "done" && preferDoneText && chunk.text != null) {
-        accumulated = chunk.text;
+        collected = chunk.text;
       }
 
       yield chunk;
     }
 
-    collected = accumulated;
     options.onComplete?.(collected);
   });
 
