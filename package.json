@@ -21,7 +21,9 @@
     "lint": "biome check src/",
     "lint:fix": "biome check --write src/",
     "format": "biome format --write src/",
-    "ci": "bun run check && bun run lint"
+    "start": "bun run examples/hello.ts",
+    "test": "bun test",
+    "ci": "bun run check && bun run lint && bun test"
   },
   "dependencies": {
     "zod": "^4.0.0"

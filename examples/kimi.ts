@@ -8,12 +8,7 @@ const weatherTool = defineTool({
     city: z.string().describe("City name"),
   }),
   handler: async ({ city }) => {
-    // Mock response
-    return JSON.stringify({
-      city,
-      temperature: 72,
-      condition: "sunny",
-    });
+    return JSON.stringify({ city, temperature: 22, condition: "cloudy" });
   },
 });
 
@@ -25,11 +20,10 @@ const agent = defineAgent({
 });
 
 async function main() {
-  // Switch provider by changing this value: "claude" | "codex" | "kimi"
-  console.log("Running basic example...");
+  console.log("Running kimi example...");
 
-  const { stream } = await run("What's the weather in San Francisco?", {
-    provider: "claude",
+  const { stream } = await run("What's the weather in Beijing?", {
+    provider: "kimi",
     agent,
   });
 
