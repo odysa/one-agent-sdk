@@ -28,11 +28,15 @@
   },
   "peerDependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.2.68",
-    "openai": "^4.0.0",
-    "@moonshot-ai/kimi-agent-sdk": "*"
+    "@moonshot-ai/kimi-agent-sdk": "*",
+    "@openai/codex-sdk": "*",
+    "openai": "^4.0.0"
   },
   "peerDependenciesMeta": {
     "@anthropic-ai/claude-agent-sdk": {
+      "optional": true
+    },
+    "@openai/codex-sdk": {
       "optional": true
     },
     "openai": {
@@ -44,7 +48,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.0",
-    "typescript": "^5.8.0",
-    "@types/node": "^22.0.0"
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
   }
 }
