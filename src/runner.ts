@@ -1,3 +1,4 @@
+import { applyMiddleware } from "./middleware.js";
 import type { ProviderBackend } from "./providers/types.js";
 import type { AgentRun, RunConfig } from "./types.js";
 
@@ -23,11 +24,21 @@ async function createProvider(config: RunConfig): Promise<ProviderBackend> {
 /** Start a run — returns a stream, chat handle, and close function */
 export async function run(prompt: string, config: RunConfig): Promise<AgentRun> {
   const provider = await createProvider(config);
-  const stream = provider.run(prompt, config);
+  const middleware = config.middleware;
+
+  if (!middleware?.length) {
+    return {
+      stream: provider.run(prompt, config),
+      chat: (message: string) => provider.chat(message),
+      close: () => provider.close(),
+    };
+  }
+
+  const mwContext = { agent: config.agent, provider: config.provider };
 
   return {
-    stream,
-    chat: (message: string) => provider.chat(message),
+    stream: applyMiddleware(provider.run(prompt, config), middleware, mwContext),
+    chat: (message: string) => applyMiddleware(provider.chat(message), middleware, mwContext),
     close: () => provider.close(),
   };
 }
