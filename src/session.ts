@@ -46,6 +46,32 @@ export interface Session {
   clear(): Promise<void>;
 }
 
+function wrapStreamWithHistory(
+  stream: AsyncGenerator<StreamChunk>,
+  history: Message[],
+  store: SessionStore,
+  sessionId: string,
+): AsyncGenerator<StreamChunk> {
+  let assistantText = "";
+
+  async function* wrapped(): AsyncGenerator<StreamChunk> {
+    for await (const chunk of stream) {
+      if (chunk.type === "text") {
+        assistantText += chunk.text;
+      }
+      if (chunk.type === "done") {
+        // Prefer done.text if available (all built-in providers populate it)
+        const text = chunk.text ?? assistantText;
+        history.push({ role: "assistant", content: text });
+        await store.save(sessionId, history);
+      }
+      yield chunk;
+    }
+  }
+
+  return wrapped();
+}
+
 /** Create a session for multi-turn conversations */
 export function createSession(config?: SessionConfig): Session {
   const id = config?.sessionId ?? crypto.randomUUID();
@@ -71,25 +97,12 @@ export function createSession(config?: SessionConfig): Session {
 
       const agentRun = await runner(fullPrompt, runConfig);
 
-      const originalStream = agentRun.stream;
-      let assistantText = "";
-
-      async function* wrappedStream(): AsyncGenerator<StreamChunk> {
-        for await (const chunk of originalStream) {
-          if (chunk.type === "text") {
-            assistantText += chunk.text;
-          }
-          if (chunk.type === "done") {
-            history.push({ role: "assistant", content: assistantText });
-            await store.save(id, history);
-          }
-          yield chunk;
-        }
-      }
-
       return {
-        stream: wrappedStream(),
-        chat: agentRun.chat,
+        stream: wrapStreamWithHistory(agentRun.stream, history, store, id),
+        chat: (message: string) => {
+          history.push({ role: "user", content: message });
+          return wrapStreamWithHistory(agentRun.chat(message), history, store, id);
+        },
         close: agentRun.close,
       };
     },
