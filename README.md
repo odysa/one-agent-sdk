@@ -1,12 +1,14 @@
 # one-agent-sdk
 
-A provider-agnostic TypeScript SDK for building LLM agents with tools and multi-agent handoffs. Write your agent once, run it on any backend.
+A provider-agnostic TypeScript SDK for building LLM agents with tools and multi-agent handoffs. Write your agent once, run it on any backend — Claude Code, ChatGPT Codex, Kimi-CLI, and more.
 
 ## Supported Providers
 
-- **Claude** — via `@anthropic-ai/claude-agent-sdk`
-- **OpenAI** — via `openai`
-- **Kimi** — via `@moonshot-ai/kimi-agent-sdk`
+| Provider | SDK | Coding Agent |
+| -------- | --- | ------------ |
+| **Claude** | `@anthropic-ai/claude-agent-sdk` | Claude Code |
+| **OpenAI** | `openai` | ChatGPT Codex |
+| **Kimi** | `@moonshot-ai/kimi-agent-sdk` | Kimi-CLI |
 
 All providers are optional peer dependencies — install only the ones you need.
 
