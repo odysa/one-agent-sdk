@@ -1,10 +1,15 @@
 import type { StreamChunk } from "../types.js";
 
+/** Partial SDKMessage — contains the fields consumers typically inspect. */
+export type AdaptedMessage = { type: string; [key: string]: unknown };
+
 /**
  * Adapt a StreamChunk async generator to emit SDKMessage-shaped objects
  * matching the @anthropic-ai/claude-agent-sdk output format.
  */
-export async function* adaptStream(stream: AsyncGenerator<StreamChunk>): AsyncGenerator<any> {
+export async function* adaptStream(
+  stream: AsyncGenerator<StreamChunk>,
+): AsyncGenerator<AdaptedMessage> {
   const sessionId = `session_${Date.now()}`;
 
   yield { type: "system", subtype: "init", session_id: sessionId };

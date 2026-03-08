@@ -1,7 +1,7 @@
 import type { AgentDef, Provider, RunConfig } from "../types.js";
 import { createProvider } from "../utils/create-provider.js";
-import { importProvider } from "../utils/import-provider.js";
 import { adaptStream } from "./adapt-stream.js";
+import { sdk } from "./delegates.js";
 import { MOCK_MCP_SERVER } from "./mcp-server.js";
 import type { Options, SDKMessage, SDKUserMessage } from "./types.js";
 
@@ -63,15 +63,12 @@ export function query(input: {
 
   if (provider === "claude-code") {
     return (async function* () {
-      const sdk = await importProvider<any>(
-        "@anthropic-ai/claude-agent-sdk",
-        "bun add @anthropic-ai/claude-agent-sdk",
-      );
+      const s = await sdk();
       // Materialize mock MCP servers into real ones
       const resolvedOptions = options.mcpServers
-        ? { ...options, mcpServers: await materializeMcpServers(options.mcpServers, sdk) }
+        ? { ...options, mcpServers: await materializeMcpServers(options.mcpServers, s) }
         : options;
-      yield* sdk.query({ prompt, options: resolvedOptions }) as AsyncIterable<SDKMessage>;
+      yield* s.query({ prompt, options: resolvedOptions }) as AsyncIterable<SDKMessage>;
     })();
   }
 
@@ -79,7 +76,9 @@ export function query(input: {
     const config = toRunConfig(provider, options as Record<string, any>);
     const backend = await createProvider(config);
     try {
-      yield* adaptStream(backend.run(typeof prompt === "string" ? prompt : "", config));
+      yield* adaptStream(
+        backend.run(typeof prompt === "string" ? prompt : "", config),
+      ) as AsyncGenerator<SDKMessage>;
     } finally {
       await backend.close();
     }

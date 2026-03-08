@@ -9,11 +9,17 @@ import type {
   SessionMessage,
 } from "./types.js";
 
-const SDK_PKG = "@anthropic-ai/claude-agent-sdk";
-const INSTALL_HINT = "bun add @anthropic-ai/claude-agent-sdk";
+export const SDK_PKG = "@anthropic-ai/claude-agent-sdk";
+export const INSTALL_HINT = "bun add @anthropic-ai/claude-agent-sdk";
 
-async function sdk(): Promise<any> {
-  return importProvider(SDK_PKG, INSTALL_HINT);
+let sdkPromise: Promise<any> | null = null;
+
+/** Cached dynamic import of the Anthropic SDK. */
+export function sdk(): Promise<any> {
+  if (!sdkPromise) {
+    sdkPromise = importProvider(SDK_PKG, INSTALL_HINT);
+  }
+  return sdkPromise;
 }
 
 /** List existing sessions. Requires @anthropic-ai/claude-agent-sdk. */
