@@ -71,6 +71,9 @@ Tool handlers return `{ content: [{ type: "text", text: string }] }` — the sta
 
 - **Claude** — tools are exposed via an in-process MCP server. Tool names follow the `mcp__{serverName}__{toolName}` convention.
 - **Codex** — tools from MCP servers are used natively.
+- **Copilot** — tools are registered via the Copilot SDK's `defineTool`. Tool approval is automatic.
 - **Kimi** — tools are created using `createExternalTool`. Tool approval is automatic.
+- **OpenAI / OpenRouter** — Zod schemas are converted to JSON Schema. Tools are passed as OpenAI function calling format.
+- **Anthropic** — Zod schemas are converted to JSON Schema. Tools use Anthropic's native tool use format.
 
 These differences are handled internally — your tool definitions work the same across all providers.

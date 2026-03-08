@@ -27,7 +27,7 @@ import { query, tool, createSdkMcpServer } from "one-agent-sdk";
 // Same API as @anthropic-ai/claude-agent-sdk — swap provider with one option
 const conversation = query({
   prompt: "What's the weather?",
-  options: { provider: "codex" }, // "claude-code" (default) | "codex" | "kimi-cli"
+  options: { provider: "codex" }, // or "openai", "anthropic", "openrouter", ...
 });
 ```
 
@@ -55,12 +55,27 @@ Everything else stays the same: streaming, tools, message format — all of it.
 
 ## Supported Providers
 
+### CLI Agent Providers
+
+These wrap CLI agent SDKs — no API keys needed, agents run as local subprocesses using your existing CLI authentication.
+
 | Provider | Package | Agent Backend |
 | :------- | :------ | :------------ |
 | `claude-code` | [`@anthropic-ai/claude-agent-sdk`](https://www.npmjs.com/package/@anthropic-ai/claude-agent-sdk) | Claude Code |
 | `codex` | [`@openai/codex-sdk`](https://www.npmjs.com/package/@openai/codex-sdk) | ChatGPT Codex |
+| `copilot` | [`@github/copilot-sdk`](https://www.npmjs.com/package/@github/copilot-sdk) | GitHub Copilot |
 | `kimi-cli` | [`@moonshot-ai/kimi-agent-sdk`](https://www.npmjs.com/package/@moonshot-ai/kimi-agent-sdk) | Kimi-CLI |
 | `gemini-cli` | `@google/gemini-cli-core` | Gemini CLI (planned — pending stable SDK, see [#31](https://github.com/odysa/one-agent-sdk/issues/31)) |
+
+### API-Key Providers
+
+These call LLM HTTP APIs directly with API keys — no CLI tooling required.
+
+| Provider | Package | API Backend |
+| :------- | :------ | :---------- |
+| `openai` | [`openai`](https://www.npmjs.com/package/openai) | OpenAI API (GPT-4o, etc.) |
+| `anthropic` | [`@anthropic-ai/sdk`](https://www.npmjs.com/package/@anthropic-ai/sdk) | Anthropic API (Claude Sonnet, etc.) |
+| `openrouter` | [`openai`](https://www.npmjs.com/package/openai) | [OpenRouter](https://openrouter.ai/) (any model) |
 
 All providers are **optional peer dependencies** — install only what you need. You can also [register custom providers](#custom-providers).
 
@@ -71,7 +86,7 @@ All providers are **optional peer dependencies** — install only what you need.
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) v18+ or [Bun](https://bun.sh/)
-- At least one provider CLI installed and authenticated (e.g. Claude Code)
+- At least one provider: either a CLI agent SDK installed and authenticated, or an API key
 
 ### Install
 
@@ -82,10 +97,15 @@ npm install one-agent-sdk
 Then install your provider:
 
 ```bash
-# Pick one (or more)
+# CLI agent providers (pick one or more)
 npm install @anthropic-ai/claude-agent-sdk
 npm install @openai/codex-sdk
+npm install @github/copilot-sdk
 npm install @moonshot-ai/kimi-agent-sdk
+
+# API-key providers (pick one or more)
+npm install openai              # for "openai" or "openrouter" provider
+npm install @anthropic-ai/sdk   # for "anthropic" provider
 ```
 
 ### Quick Start
@@ -128,7 +148,7 @@ for await (const msg of conversation) {
 ```
 
 > [!TIP]
-> To switch providers, add `provider: "codex"` or `provider: "kimi-cli"` to `options`. Defaults to `"claude-code"`.
+> To switch providers, add `provider: "codex"`, `provider: "openai"`, etc. to `options`. Defaults to `"claude-code"`.
 
 <br />
 
@@ -147,8 +167,14 @@ const claude = query({ prompt: "Explain this code" });
 // Use Codex
 const codex = query({ prompt: "Explain this code", options: { provider: "codex" } });
 
-// Use Kimi
-const kimi = query({ prompt: "Explain this code", options: { provider: "kimi-cli" } });
+// Use OpenAI API directly
+const openai = query({ prompt: "Explain this code", options: { provider: "openai" } });
+
+// Use Anthropic API directly
+const anthropic = query({ prompt: "Explain this code", options: { provider: "anthropic" } });
+
+// Use any model via OpenRouter
+const openrouter = query({ prompt: "Explain this code", options: { provider: "openrouter", model: "anthropic/claude-sonnet-4" } });
 ```
 
 The output stream always emits the same `SDKMessage` format, regardless of provider.
@@ -185,16 +211,25 @@ graph LR
     A["query(prompt, options)"] --> B{options.provider}
     B -->|claude-code| C["@anthropic-ai/claude-agent-sdk"]
     B -->|codex| D["@openai/codex-sdk"]
-    B -->|kimi-cli| E["@moonshot-ai/kimi-agent-sdk"]
-    B -->|custom| F[Registered Provider]
-    C --> G[SDKMessage Stream]
-    D --> G
-    E --> G
-    F --> G
+    B -->|copilot| E["@github/copilot-sdk"]
+    B -->|kimi-cli| F["@moonshot-ai/kimi-agent-sdk"]
+    B -->|openai| G["OpenAI API"]
+    B -->|anthropic| H["Anthropic API"]
+    B -->|openrouter| I["OpenRouter API"]
+    B -->|custom| J[Registered Provider]
+    C --> K[SDKMessage Stream]
+    D --> K
+    E --> K
+    F --> K
+    G --> K
+    H --> K
+    I --> K
+    J --> K
 ```
 
 - **`claude-code`** (default) — delegates directly to the real Anthropic SDK. Full fidelity, zero overhead.
-- **`codex`** / **`kimi-cli`** / **custom** — routes to the backend and adapts the output to `SDKMessage` format.
+- **CLI providers** (`codex`, `copilot`, `kimi-cli`) — wraps CLI agent SDKs, adapts output to `SDKMessage` format.
+- **API providers** (`openai`, `anthropic`, `openrouter`) — calls LLM APIs directly with API keys, manages multi-turn tool loops internally.
 
 > [!NOTE]
 > Provider SDKs are dynamically imported at runtime — unused providers are never loaded.
@@ -213,7 +248,7 @@ import { query, tool, createSdkMcpServer } from "one-agent-sdk";
 
 | Option | Description |
 | :------- | :---------- |
-| `options.provider` | Route to a different backend: `"claude-code"` (default), `"codex"`, `"kimi-cli"`, or any registered custom provider |
+| `options.provider` | Route to a different backend: `"claude-code"` (default), `"codex"`, `"copilot"`, `"kimi-cli"`, `"openai"`, `"anthropic"`, `"openrouter"`, or any registered custom provider |
 
 | Helper | Description |
 | :------- | :---------- |
@@ -231,7 +266,11 @@ The [`examples/`](./examples) directory contains runnable demos:
 | :------ | :---------- |
 | [`claude.ts`](./examples/claude.ts) | Claude with tools via `query()` + `tool()` |
 | [`codex.ts`](./examples/codex.ts) | Codex backend |
+| [`copilot.ts`](./examples/copilot.ts) | GitHub Copilot backend |
 | [`kimi.ts`](./examples/kimi.ts) | Kimi backend |
+| [`openai-api.ts`](./examples/openai-api.ts) | OpenAI API with tools |
+| [`anthropic-api.ts`](./examples/anthropic-api.ts) | Anthropic API with tools |
+| [`openrouter.ts`](./examples/openrouter.ts) | OpenRouter (any model) |
 | [`hello.ts`](./examples/hello.ts) | Minimal example (legacy API) |
 | [`multi-agent.ts`](./examples/multi-agent.ts) | Multi-agent handoffs (legacy API) |
 

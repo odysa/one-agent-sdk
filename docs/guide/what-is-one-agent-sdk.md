@@ -1,8 +1,6 @@
 # What is One Agent SDK?
 
-One Agent SDK is a provider-agnostic TypeScript SDK for building LLM agents with tools and multi-agent handoffs. It embeds in-process agents — like Claude Code, ChatGPT Codex, and Kimi-CLI — directly into your applications with a unified streaming interface (`AsyncGenerator<StreamChunk>`).
-
-No API keys needed: agents run as local subprocesses using your existing CLI authentication.
+One Agent SDK is a provider-agnostic TypeScript SDK for building LLM agents with tools and multi-agent handoffs. It supports both CLI agent SDKs (Claude Code, ChatGPT Codex, Copilot, Kimi-CLI) and API-key providers (OpenAI, Anthropic, OpenRouter) with a unified streaming interface (`AsyncGenerator<StreamChunk>`).
 
 ## Why?
 
@@ -17,11 +15,22 @@ Each LLM provider has its own SDK with different APIs, streaming formats, and to
 
 ## Supported Providers
 
+### CLI Agent Providers
+
 | Provider | SDK | Agent Backend |
 | -------- | --- | ------------- |
 | `claude-code` | `@anthropic-ai/claude-agent-sdk` | Claude Code |
 | `codex` | `@openai/codex-sdk` | ChatGPT Codex |
+| `copilot` | `@github/copilot-sdk` | GitHub Copilot |
 | `kimi-cli` | `@moonshot-ai/kimi-agent-sdk` | Kimi-CLI |
+
+### API-Key Providers
+
+| Provider | SDK | API Backend |
+| -------- | --- | ----------- |
+| `openai` | `openai` | OpenAI API (GPT-4o, etc.) |
+| `anthropic` | `@anthropic-ai/sdk` | Anthropic API (Claude Sonnet, etc.) |
+| `openrouter` | `openai` | OpenRouter (any model) |
 
 All providers are optional peer dependencies — install only the ones you need. You can also [register custom providers](/guide/providers#custom-providers).
 

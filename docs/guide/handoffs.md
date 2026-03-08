@@ -79,7 +79,8 @@ for await (const chunk of stream) {
 Handoffs are implemented differently by each provider, but behave the same from your perspective:
 
 - **Claude** — delegates to the Claude Agent SDK's built-in agent support
-- **Codex / Kimi** — handoffs are synthetic `transfer_to_{name}` function tools that swap the system prompt
+- **Codex / Copilot / Kimi** — handoffs are synthetic `transfer_to_{name}` function tools that swap the system prompt
+- **OpenAI / Anthropic / OpenRouter** — handoffs are synthetic `transfer_to_{name}` function tools that swap the active agent (system prompt, tools, and handoff targets)
 
 ## The `agents` Map
 
