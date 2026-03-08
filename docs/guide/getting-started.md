@@ -36,8 +36,24 @@ npm install @anthropic-ai/claude-agent-sdk
 npm install @openai/codex-sdk
 ```
 
+```bash [Copilot]
+npm install @github/copilot-sdk
+```
+
 ```bash [Kimi]
 npm install @moonshot-ai/kimi-agent-sdk
+```
+
+```bash [OpenAI API]
+npm install openai
+```
+
+```bash [Anthropic API]
+npm install @anthropic-ai/sdk
+```
+
+```bash [OpenRouter]
+npm install openai
 ```
 
 :::
@@ -94,7 +110,7 @@ Pass `options.provider` to route to a different backend:
 const conversation = query({
   prompt: "What's the weather in San Francisco?",
   options: {
-    provider: "codex", // "claude-code" (default) | "codex" | "kimi-cli"
+    provider: "codex", // or "openai", "anthropic", "openrouter", "kimi-cli", ...
     systemPrompt: "You are a helpful assistant.",
   },
 });

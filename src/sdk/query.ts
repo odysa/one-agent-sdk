@@ -77,7 +77,11 @@ async function materializeMcpServers(
  * Pass `options.provider` to route to a different backend:
  * - `"claude-code"` (default) — delegates to the real Anthropic SDK
  * - `"codex"` — routes to OpenAI Codex
+ * - `"copilot"` — routes to GitHub Copilot
  * - `"kimi-cli"` — routes to Kimi
+ * - `"openai"` — routes to OpenAI API
+ * - `"anthropic"` — routes to Anthropic API
+ * - `"openrouter"` — routes to OpenRouter (OpenAI-compatible)
  * - Any registered custom provider name
  *
  * The output stream emits SDKMessage-shaped objects regardless of backend.

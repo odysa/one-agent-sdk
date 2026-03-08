@@ -4,7 +4,7 @@ layout: home
 hero:
   name: One Agent SDK
   text: Provider-Agnostic LLM Agents
-  tagline: Embed in-process agents — Claude Code, Codex, Kimi — directly into your TypeScript apps. No API keys, one line to swap.
+  tagline: Embed agents — Claude Code, Codex, Copilot, OpenAI, Anthropic, and more — directly into your TypeScript apps. One line to swap providers.
   actions:
     - theme: brand
       text: Get Started
@@ -15,7 +15,7 @@ hero:
 
 features:
   - title: Provider Agnostic
-    details: Swap between Claude, Codex, and Kimi with a single config change. Register your own custom providers too.
+    details: Swap between Claude, Codex, Copilot, OpenAI, Anthropic, OpenRouter, and more with a single config change.
   - title: Streaming First
     details: Unified AsyncGenerator-based streaming interface across all providers. Process text, tool calls, and handoffs as they happen.
   - title: Multi-Agent Handoffs

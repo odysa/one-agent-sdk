@@ -95,7 +95,7 @@ export async function createAnthropicProvider(config: RunConfig): Promise<Provid
             break;
           }
           case "content_block_delta": {
-            if (event.delta?.type === "text_delta") {
+            if (event.delta?.type === "text_delta" && event.delta.text) {
               fullText += event.delta.text;
               yield { type: "text", text: event.delta.text };
             } else if (event.delta?.type === "input_json_delta" && currentToolUse) {

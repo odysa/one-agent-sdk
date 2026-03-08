@@ -48,6 +48,9 @@ Releases resources (connections, child processes, MCP servers).
 | `codex` | `@openai/codex-sdk` | `@openai/codex-sdk` |
 | `copilot` | `@github/copilot-sdk` | `@github/copilot-sdk` |
 | `kimi-cli` | `@moonshot-ai/kimi-agent-sdk` | `@moonshot-ai/kimi-agent-sdk` |
+| `openai` | `openai` | `openai` |
+| `anthropic` | `@anthropic-ai/sdk` | `@anthropic-ai/sdk` |
+| `openrouter` | `openai` (OpenAI-compatible) | `openai` |
 
 All peer dependencies are optional. Dynamic `import()` via `importProvider()` ensures missing deps fail at runtime with a clear install hint, not at startup.
 
