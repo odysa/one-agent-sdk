@@ -241,6 +241,19 @@ npx tsx examples/hello.ts
 
 <br />
 
+## Legacy API (Deprecated)
+
+The following functions are exported from `one-agent-sdk` and will be removed in v0.2. Migrate to `one-agent-sdk/claude-agent-sdk` instead.
+
+| Function | Replacement |
+| :------- | :---------- |
+| `run(prompt, config)` | `query({ prompt, options })` |
+| `runToCompletion(prompt, config)` | `query({ prompt, options })` + collect results |
+| `defineAgent({...})` | Pass agent config directly via `query()` options |
+| `defineTool({...})` | `tool(name, description, schema, handler)` |
+
+<br />
+
 ## Contributing
 
 Contributions are welcome! Please see the [contributing guide](CONTRIBUTING.md) for details.
