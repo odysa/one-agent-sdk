@@ -42,6 +42,40 @@ const { stream } = await run("Hello", {
 - Tool calls use streaming delta accumulation
 - Handoffs are synthetic `transfer_to_{name}` function tools
 
+### Copilot
+
+Uses `@github/copilot-sdk`. Spawns GitHub Copilot CLI as a subprocess.
+
+```bash
+npm install @github/copilot-sdk
+```
+
+```typescript
+const { stream } = await run("Hello", {
+  provider: "copilot",
+  agent,
+  providerOptions: {
+    githubToken: process.env.GITHUB_TOKEN,
+  },
+});
+```
+
+- Uses Copilot SDK sessions with streaming enabled
+- Tool definitions are registered through `defineTool(...)`
+- Handoffs are synthetic `transfer_to_{name}` tools
+- `workDir` is forwarded as `workingDirectory` for Copilot sessions
+
+### Copilot Provider Options
+
+| Option | Description |
+| :----- | :---------- |
+| `cliPath` | Path to the Copilot CLI binary |
+| `cliUrl` | Base URL for the Copilot CLI server |
+| `githubToken` | GitHub token used by the Copilot SDK client |
+| `reasoningEffort` | Session reasoning effort level |
+| `clientOptions` | Extra options merged into `new CopilotClient(...)` |
+| `sessionOptions` | Extra options merged into `client.createSession(...)` |
+
 ### Kimi
 
 Uses `@moonshot-ai/kimi-agent-sdk`. Spawns Kimi-CLI as a subprocess.

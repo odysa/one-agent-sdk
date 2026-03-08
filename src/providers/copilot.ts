@@ -13,8 +13,7 @@ export async function createCopilotProvider(config: RunConfig): Promise<Provider
 
   // Map ToolDef[] to copilot-sdk tools via defineTool (both use Zod)
   const tools = agentTools.map((t: ToolDef) =>
-    defineTool({
-      name: t.name,
+    defineTool(t.name, {
       description: t.description,
       parameters: t.parameters,
       handler: t.handler,
@@ -27,8 +26,7 @@ export async function createCopilotProvider(config: RunConfig): Promise<Provider
   for (const targetName of config.agent.handoffs ?? []) {
     const targetAgent = config.agents?.[targetName];
     tools.push(
-      defineTool({
-        name: handoffToolName(targetName),
+      defineTool(handoffToolName(targetName), {
         description: targetAgent?.description ?? `Transfer to ${targetName}`,
         parameters: {} as any,
         handler: async () => `Transferred to ${targetName}`,
@@ -62,7 +60,7 @@ export async function createCopilotProvider(config: RunConfig): Promise<Provider
   if (config.agent.prompt) {
     sessionConfig.systemMessage = { content: config.agent.prompt };
   }
-  if (config.workDir) sessionConfig.workDir = config.workDir;
+  if (config.workDir) sessionConfig.workingDirectory = config.workDir;
   if (config.providerOptions?.sessionOptions) {
     Object.assign(sessionConfig, config.providerOptions.sessionOptions);
   }
@@ -193,7 +191,11 @@ export async function createCopilotProvider(config: RunConfig): Promise<Provider
     chat: runPrompt,
     async close() {
       try {
-        await session.destroy();
+        if ("disconnect" in session && typeof session.disconnect === "function") {
+          await session.disconnect();
+        } else {
+          await session.destroy();
+        }
       } finally {
         await client.stop();
       }
