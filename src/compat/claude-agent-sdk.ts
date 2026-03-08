@@ -1,13 +1,14 @@
 /**
- * Drop-in compatibility layer for @anthropic-ai/claude-agent-sdk.
+ * Drop-in replacement for @anthropic-ai/claude-agent-sdk with multi-provider support.
  *
  * Usage:
- *   // Before (direct Anthropic SDK):
- *   import { query, tool, createSdkMcpServer } from "@anthropic-ai/claude-agent-sdk";
- *
- *   // After (via one-agent-sdk):
  *   import { query, tool, createSdkMcpServer } from "one-agent-sdk/claude-agent-sdk";
  *
- * Requires @anthropic-ai/claude-agent-sdk as a peer dependency.
+ * 100% API-compatible with @anthropic-ai/claude-agent-sdk.
+ * Pass `options.provider` to route to a different backend (codex, kimi-cli, or custom).
+ * Defaults to claude-code when no provider is specified.
  */
 export * from "@anthropic-ai/claude-agent-sdk";
+
+// Shadow query with our provider-agnostic version
+export { query } from "./query.js";

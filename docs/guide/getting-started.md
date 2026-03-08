@@ -42,14 +42,15 @@ npm install @moonshot-ai/kimi-agent-sdk
 
 :::
 
-## Quick Start (Claude)
+## Quick Start
 
-If you're using Claude, `one-agent-sdk/claude-agent-sdk` is a drop-in replacement for `@anthropic-ai/claude-agent-sdk`:
+`one-agent-sdk/claude-agent-sdk` is a drop-in replacement for `@anthropic-ai/claude-agent-sdk`. Same API, multiple providers:
 
 ```typescript
 import { z } from "zod";
 import { query, tool, createSdkMcpServer } from "one-agent-sdk/claude-agent-sdk";
 
+// Define a tool (same as @anthropic-ai/claude-agent-sdk)
 const weatherTool = tool(
   "get_weather",
   "Get the current weather for a city",
@@ -65,6 +66,7 @@ const mcpServer = createSdkMcpServer({
   tools: [weatherTool],
 });
 
+// query() defaults to claude-code — pass options.provider to switch
 const conversation = query({
   prompt: "What's the weather in San Francisco?",
   options: {
@@ -83,50 +85,27 @@ for await (const msg of conversation) {
 }
 ```
 
-## Quick Start (Provider-Agnostic)
+### Switching Providers
 
-> **Note:** The provider-agnostic API is deprecated and will be removed in v0.2. For Claude, prefer the interface above.
+Pass `options.provider` to route to a different backend:
 
 ```typescript
-import { z } from "zod";
-import { defineAgent, defineTool, run } from "one-agent-sdk";
-
-const weatherTool = defineTool({
-  name: "get_weather",
-  description: "Get the current weather for a city",
-  parameters: z.object({
-    city: z.string().describe("City name"),
-  }),
-  handler: async ({ city }) => {
-    return JSON.stringify({ city, temperature: 72, condition: "sunny" });
+// Use Codex instead of Claude
+const conversation = query({
+  prompt: "What's the weather in San Francisco?",
+  options: {
+    provider: "codex", // "claude-code" (default) | "codex" | "kimi-cli"
+    systemPrompt: "You are a helpful assistant.",
   },
 });
-
-const agent = defineAgent({
-  name: "assistant",
-  description: "A helpful assistant",
-  prompt: "You are a helpful assistant. Use the weather tool when asked about weather.",
-  tools: [weatherTool],
-});
-
-const { stream } = await run("What's the weather in San Francisco?", {
-  provider: "claude-code",
-  agent,
-});
-
-for await (const chunk of stream) {
-  if (chunk.type === "text") {
-    process.stdout.write(chunk.text);
-  }
-}
 ```
+
+The output stream emits the same `SDKMessage` format regardless of backend.
 
 ## What's Next?
 
-- Learn about [Agents](/guide/agents) and how to configure them
-- See how to define [Tools](/guide/tools) with type-safe parameters
+- Learn about [Tools](/guide/tools) with type-safe parameters
 - Understand the [Streaming](/guide/streaming) interface
-- Build [Multi-Agent Handoffs](/guide/handoffs)
 - Compare [Providers](/guide/providers) and register custom ones
 - Add [Middleware](/guide/middleware) to transform streams
 - Manage [Sessions](/guide/sessions) for multi-turn conversations

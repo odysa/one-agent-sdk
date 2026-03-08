@@ -1,10 +1,8 @@
 # Tools
 
-Tools let agents interact with external systems.
+Tools let agents interact with external systems. Define tools using the same `tool()` function from `@anthropic-ai/claude-agent-sdk`:
 
-## Claude Agent SDK (Recommended)
-
-Using `one-agent-sdk/claude-agent-sdk`, tools follow the Anthropic Agent SDK interface:
+## Defining a Tool
 
 ```typescript
 import { z } from "zod";
@@ -23,72 +21,56 @@ const searchTool = tool(
 );
 ```
 
-## Provider-Agnostic (Deprecated)
+## Using Tools with an MCP Server
 
-> **Note:** `defineTool` is deprecated and will be removed in v0.2.
+Tools are registered via `createSdkMcpServer()` and passed to `query()`:
 
 ```typescript
-import { z } from "zod";
-import { defineTool } from "one-agent-sdk";
+import { query, tool, createSdkMcpServer } from "one-agent-sdk/claude-agent-sdk";
 
-const searchTool = defineTool({
-  name: "search",
-  description: "Search the web for information",
-  parameters: z.object({
-    query: z.string().describe("Search query"),
-    maxResults: z.number().optional().describe("Max results to return"),
-  }),
-  handler: async ({ query, maxResults }) => {
-    const results = await performSearch(query, maxResults);
-    return JSON.stringify(results);
+const mcpServer = createSdkMcpServer({
+  name: "tools",
+  version: "1.0.0",
+  tools: [searchTool],
+});
+
+const conversation = query({
+  prompt: "Search for TypeScript best practices",
+  options: {
+    mcpServers: { tools: mcpServer },
+    allowedTools: ["mcp__tools__search"],
   },
 });
 ```
 
-## ToolDef Properties
-
-| Property | Type | Description |
-| --- | --- | --- |
-| `name` | `string` | Unique tool name |
-| `description` | `string` | Description shown to the LLM |
-| `parameters` | `z.ZodType` | Zod schema defining the tool's input |
-| `handler` | `(params) => Promise<string>` | Async function that executes the tool |
-
 ## Type Safety
 
-The `handler` function receives fully typed parameters inferred from the Zod schema:
+The handler receives fully typed parameters inferred from the Zod schema:
 
 ```typescript
-const tool = defineTool({
-  name: "create_user",
-  description: "Create a new user",
-  parameters: z.object({
+const createUser = tool(
+  "create_user",
+  "Create a new user",
+  {
     name: z.string(),
     email: z.string().email(),
     age: z.number().min(0),
-  }),
-  handler: async ({ name, email, age }) => {
-    // name: string, email: string, age: number — fully typed
-    return JSON.stringify({ id: 1, name, email, age });
   },
-});
+  async ({ name, email, age }) => {
+    // name: string, email: string, age: number — fully typed
+    return { content: [{ type: "text" as const, text: JSON.stringify({ id: 1, name, email, age }) }] };
+  },
+);
 ```
 
 ## Return Values
 
-Tool handlers must return a `string`. For structured data, use `JSON.stringify()`:
-
-```typescript
-handler: async ({ city }) => {
-  const data = await fetchWeather(city);
-  return JSON.stringify(data);
-}
-```
+Tool handlers return `{ content: [{ type: "text", text: string }] }` — the standard MCP `CallToolResult` format.
 
 ## Provider Differences
 
-- **Claude** — tools are exposed via an in-process MCP server. Tool names follow the `mcp__{serverName}__{toolName}` convention internally.
-- **Codex** — Zod schemas are converted to JSON Schema via `zodToJsonSchema()`. Tools are registered as OpenAI function tools.
+- **Claude** — tools are exposed via an in-process MCP server. Tool names follow the `mcp__{serverName}__{toolName}` convention.
+- **Codex** — tools from MCP servers are used natively.
 - **Kimi** — tools are created using `createExternalTool`. Tool approval is automatic.
 
 These differences are handled internally — your tool definitions work the same across all providers.
