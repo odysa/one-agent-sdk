@@ -17,6 +17,7 @@
       "peerDependencies": {
         "@anthropic-ai/claude-agent-sdk": "^0.2.68",
         "@anthropic-ai/sdk": "^0.50.0",
+        "@github/copilot-sdk": "*",
         "@moonshot-ai/kimi-agent-sdk": "*",
         "@openai/codex-sdk": "*",
         "openai": "^4.0.0",
@@ -24,6 +25,7 @@
       "optionalPeers": [
         "@anthropic-ai/claude-agent-sdk",
         "@anthropic-ai/sdk",
+        "@github/copilot-sdk",
         "@moonshot-ai/kimi-agent-sdk",
         "@openai/codex-sdk",
         "openai",

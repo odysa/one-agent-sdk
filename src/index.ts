@@ -14,6 +14,11 @@
 
 export * from "./sdk/claude-agent-sdk.js";
 
+// ── Agent-as-Tool ────────────────────────────────────────────────────────────
+
+export type { AgentToolOptions } from "./agent-tool.js";
+export { agentTool } from "./agent-tool.js";
+
 // ── Legacy API (deprecated — will be removed in v0.2) ───────────────────────
 
 export { defineAgent } from "./agent.js";
