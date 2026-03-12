@@ -1,12 +1,14 @@
 import type { ProviderBackend } from "../providers/types.js";
 import { getProvider } from "../registry.js";
 import type { RunConfig } from "../types.js";
+import { assertProviderDependencyInstalled } from "./provider-dependency.js";
 
 /** Resolve a provider backend from registry or built-in providers. */
 export async function createProvider(config: RunConfig): Promise<ProviderBackend> {
   // Check registry first (custom providers)
   const factory = getProvider(config.provider);
   if (factory) return factory(config);
+  await assertProviderDependencyInstalled(config.provider);
 
   // Built-in providers
   switch (config.provider) {

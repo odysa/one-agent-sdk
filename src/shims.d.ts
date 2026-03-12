@@ -35,6 +35,11 @@ declare module "@moonshot-ai/kimi-agent-sdk" {
 }
 
 declare module "@github/copilot-sdk" {
+  type ToolConfig = {
+    description: string;
+    parameters: any;
+    handler: (args: any) => Promise<any>;
+  };
   class CopilotClient {
     constructor(options?: Record<string, unknown>);
     start(): Promise<void>;
@@ -50,15 +55,12 @@ declare module "@github/copilot-sdk" {
     ): Promise<{ data: { content: string } } | undefined>;
     on(eventType: string, handler: (event: any) => void): () => void;
     on(handler: (event: any) => void): () => void;
+    disconnect(): Promise<void>;
     abort(): Promise<void>;
     destroy(): Promise<void>;
   }
-  function defineTool(options: {
-    name: string;
-    description: string;
-    parameters: any;
-    handler: (args: any) => Promise<any>;
-  }): any;
+  function defineTool(name: string, options: ToolConfig): any;
+  function defineTool(options: ToolConfig): any;
   function approveAll(request: any): any;
   export { CopilotClient, CopilotSession, defineTool, approveAll };
 }
